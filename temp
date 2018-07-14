@@ -1,0 +1,67 @@
+ def find_path(x,y,dx,dy):
+    used_path = []
+    path1 = []
+    global navigation
+    temp1=''
+    temp2=''
+    if (navigation[x][y] in {'d', 'k', 'a', '$'}):
+        temp1 = navigation[x][y]
+        navigation[x][y] = ' '
+    if (navigation[dx][dy] in {'d', 'k', 'a', '$'}):
+        temp2 = navigation[dx][dy]
+        navigation[dx][dy] = ' '
+    current_state = navigation[x][y]
+    if (current_state != navigation[dx][dy] and current_state in {' ','~'} and navigation[dx][dy] in {' ','~'} and
+            ((dx - 1 == x and dy == y) or (dx + 1 == x and dy == y) or (dx == x and dy - 1 == y)
+             or (dx == x and dy + 1 == y))):
+        return [[x, y], [dx, dy]]
+    def recursive_path(cx,cy):
+        nonlocal path1
+        nonlocal used_path
+        nonlocal current_state
+        nonlocal x
+        nonlocal y
+        nonlocal dx
+        nonlocal dy
+        path1.append([cx,cy])
+        used_path.append([cx,cy])
+        if([cx-1,cy]==[dx,dy]):
+            path1.append([cx-1, cy])
+            return True
+        if([cx,cy+1]==[dx,dy]):
+            path1.append([cx,cy+1])
+            return True
+        if([cx+1,cy]==[dx,dy]):
+            path1.append([cx+1,cy])
+            return True
+        if([cx,cy-1]==[dx,dy]):
+            path1.append([cx,cy-1])
+            return True
+        a_star = []
+        if(navigation[cx-1][cy] == current_state and [cx-1,cy] not in used_path):
+            a_star.append([cx-1,cy,M_distance(dx,dy,cx-1,cy)])
+        if(navigation[cx][cy+1] == current_state and [cx,cy+1] not in used_path):
+            a_star.append([cx,cy+1,M_distance(dx,dy,cx,cy+1)])
+        if(navigation[cx+1][cy] == current_state and [cx+1,cy] not in used_path):
+            a_star.append([cx+1,cy,M_distance(dx,dy,cx+1,cy)])
+        if(navigation[cx][cy-1] == current_state and [cx,cy-1] not in used_path):
+            a_star.append([cx,cy-1,M_distance(dx,dy,cx,cy-1)])
+        a_star.sort(reverse=True)
+        while(a_star):
+            temp=a_star.pop()
+            if(temp):
+                if( recursive_path(temp[0],temp[1])):
+                    return True
+                else:
+                    path1.pop()
+        return False
+
+    flag=recursive_path(x, y)
+    if (temp1):
+        navigation[x][y] = temp1
+    if (temp2):
+        navigation[dx][dy] = temp2
+    if(flag):
+        return path1
+    else:
+        return []

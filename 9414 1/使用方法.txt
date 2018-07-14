@@ -1,0 +1,7 @@
+修改map1gg.bat
+服务器启动 java Raft -p 12343 -i s3.in
+双击就能用
+Agent3.py -p [端口号]
+eg.
+服务器开 java Raft -p 12343 -i s3.in
+客户端开 Agent3.py -p 12343

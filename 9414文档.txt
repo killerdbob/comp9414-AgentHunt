@@ -1,0 +1,11 @@
+这个程序给每个物品设定一个分值，比如斧子= 分，炸弹= 分，某次行为只有当收益的分值大于之前的时候才进行，因为炸弹是消耗的，所以用了炸弹会扣分，但是设定了，如果只能用炸弹且没有收益的时候，会使用炸弹，因为如果不进行任何行动会扣一个很大的分，设定了下海是扣分的行为，也就意味着只有当一个岛上没有事可以做的时候才会下海，
+
+这个程序会分析每个可能的行为，根据决策带来的收益进行选择
+
+使用了A*算法进行寻路，另外还有剪枝算法来减少可能的选择，每一片相邻的海岸线视为一个港口，选择其中一个点作为出港的选择
+
+This program set a mark for every item, for example, axe= point, bomb= point.  If revenue is higher than before, this action will be carried. Because the bomb will be expended, so if using bomb， the point will be deducted. However, one setting is if no action, it will deduct a big point. So that, if it choose whether to  stay put or use the bomb, even using bomb cannot bring revenue. It will use the bomb. Another setting is sail will deduct some point.When it cannot do other things, it will sail.
+
+This program will analysis every possible action, making a decision which is based on revenue. Search the path by using A* algorithm. Using pruning algorithm to reduce some possible choice. The every point in one coastline will be regard as one port in total. 
+
+探索过的地图可以进行扩展，当运行至原地图的边界的时候（如果超过原地图则不会扩展），自动获取周围视野内的地图填充至已知地图中

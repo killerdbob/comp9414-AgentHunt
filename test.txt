@@ -1,0 +1,63 @@
+~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~
+~~                  ~~
+~~     ^            ~~
+~~    ***           ~~
+~~   *****          ~~
+~~  ***$***         ~~
+~~  ********        ~~
+~~   ***dd***       ~~
+~~    *****d**      ~~
+~~     ***d*d**     ~~
+~~      ******d*    ~~
+~~       ********   ~~
+~~        ********  ~~
+~~               *  ~~
+~~          **d**   ~~
+~~           ***    ~~
+~~            *     ~~
+~~                  ~~
+~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~
+best_path: [[[28, 30, 'k'], 'k'], [[30, 34], [31, 34], 'U'], [[32, 34], 'm'], [[32, 35], 'm'],
+[[32, 36], 'm'], [[31, 36], 'm'], [[31, 37], 'm'], [[32, 37, 'd'], 'd'], [[30, 25], [31, 25], 'B'],
+[[32, 25], 'm'], [[32, 24], 'm'], [[31, 24], 'm'], [[31, 23], 'm'], [[32, 23, 'a'], 'a'],
+[[32, 26], [32, 27], 'C'], [[27, 28], [26, 28], '~'], [[25, 28], 'm'], [[25, 29], 'm'], [[25, 30], 'm'],
+[[25, 31], 'm'], [[25, 32], 'm'], [[25, 33], 'm'], [[25, 34], 'm'], [[26, 35], 'm'], [[26, 27], 'm'],
+[[25, 27], 'm'], [[25, 26], 'm'], [[26, 25], 'm'], [[27, 25], ' '], [[27, 24], 'm'], [[28, 23], 'm'],
+[[28, 23], [29, 23], 'C'], [[27, 25], [26, 25], '~'], [[27, 35], ' '], [[27, 36], 'm'],
+[[28, 37, '$'], '$'], [[28, 37], [29, 37], 'C'], [[27, 35], [26, 35], '~'], [[27, 32], ' '],
+[[30, 30], ' ']] simulate_mark: 99999
+#############################################################################
+if (row + 6 > len(map)):
+    temp_map = [['m' for _ in range(len(map[0]))] for _ in range(len(map) + 2)]
+    for i in range(len(map)):
+        for j in range(len(map[0])):
+            temp_map[i][j] = map[i][j]
+    map = [[i for i in temp_map[j]] for j in range(len(temp_map))]
+if (row - 6 < 0):
+    temp_map = [['m' for _ in range(len(map[0]))] for _ in range(len(map) + 2)]
+    for i in range(len(map)):
+        for j in range(len(map[0])):
+            temp_map[i + 2][j] = map[i][j]
+    map = [[i for i in temp_map[j]] for j in range(len(temp_map))]
+    center_x += 2
+    offset_x += 2
+if (col + 6 > len(map[0])):
+    temp_map = [['m' for _ in range(len(map[0]) + 2)] for _ in range(len(map))]
+    for i in range(len(map)):
+        for j in range(len(map[0])):
+            temp_map[i][j] = map[i][j]
+    map = [[i for i in temp_map[j]] for j in range(len(temp_map))]
+if (col - 6 < 0):
+    temp_map = [['m' for _ in range(len(map[0]) + 2)] for _ in range(len(map))]
+    for i in range(len(map)):
+        for j in range(len(map[0])):
+            temp_map[i][j + 2] = map[i][j]
+    map = [[i for i in temp_map[j]] for j in range(len(temp_map))]
+    center_y += 2
+    offset_y += 2
+
+
+row = p[0] + offset_x
+col = p[1] + offset_y

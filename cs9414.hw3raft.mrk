@@ -1,0 +1,1515 @@
+
+!!section banner
+ #####   #####    ###
+#     # #     #  #   #
+      #       # # #   #
+ #####   #####  #  #  #
+      # #       #   # #
+#     # #        #   #
+ #####  #######   ###
+
+Huang, Wei                              320
+Peng, Chengwen                          320
+
+Submissions:-
+
+S 0     Thu May 11 21:50:38 2017        320 all hw3raft -17:-2
+S 1     Thu May 11 21:58:53 2017        320 all hw3raft -17:-2
+S 0     Thu May 11 23:26:43 2017        320 all hw3raft -17:0
+S 1     Fri May 12 13:02:13 2017        320 all hw3raft -16:-10
+S 0     Sat May 13 00:26:34 2017        320 all hw3raft -15:-23
+S 1     Sat May 13 01:04:05 2017        320 all hw3raft -15:-22
+S 0     Sat May 13 13:59:35 2017        320 all hw3raft -15:-10
+S 1     Sat May 13 16:37:30 2017        320 all hw3raft -15:-7
+S 0     Sat May 13 19:26:30 2017        320 all hw3raft -15:-4
+S 1     Sun May 14 12:55:51 2017        320 all hw3raft -14:-11
+S 0     Thu May 18 11:59:05 2017        320 all hw3raft -10:-12
+S 1     Thu May 18 13:22:17 2017        320 all hw3raft -10:-10
+S 0     Thu May 18 13:24:23 2017        320 all hw3raft -10:-10
+S 1     Fri May 26 22:44:05 2017        320 all hw3raft -2:-1
+S 0     Fri May 26 22:53:17 2017        320 all hw3raft -2:-1
+S 1     Fri May 26 22:55:51 2017        320 all hw3raft -2:-1
+S 0     Fri May 26 23:04:16 2017        320 all hw3raft -2:0
+S 1     Fri May 26 23:09:16 2017        320 all hw3raft -2:0
+S 0     Fri May 26 23:16:35 2017        320 all hw3raft -2:0
+S 1     Fri May 26 23:23:36 2017        320 all hw3raft -2:0
+S 0     Fri May 26 23:25:56 2017        320 all hw3raft -2:0
+S 1     Fri May 26 23:32:38 2017        320 all hw3raft -2:0
+S 0     Fri May 26 23:35:12 2017        320 all hw3raft -2:0
+S 1     Fri May 26 23:36:33 2017        320 all hw3raft -2:0
+S 0     Fri May 26 23:42:10 2017        320 all hw3raft -2:0
+S 1     Fri May 26 23:49:58 2017        320 all hw3raft -2:0
+S 0     Fri May 26 23:50:50 2017        320 all hw3raft -2:0
+S 1     Fri May 26 23:53:54 2017        320 all hw3raft -2:0
+S 0     Sun May 28 21:42:35 2017        320 all hw3raft 0:-2
+S 1     Sun May 28 23:32:28 2017        320 all hw3raft 0:0
+S 0     Sun May 28 23:43:11 2017        320 all hw3raft 0:0
+S 1     Sun May 28 23:44:12 2017        320 all hw3raft 0:0
+S 0     Sun May 28 23:55:24 2017        320 all hw3raft 0:0
+
+Wed May 31 13:11:41 2017                ## lyre13.orchestra.cse.unsw.EDU.AU ##
+!!section listing
+-rw-r--r-- z5119435/z5119435 50686 2017-05-28 23:55 agent.py
+-rw-r--r-- z5119435/z5119435   283 2017-05-28 23:55 Makefile
+**--------------**
+agent.py Makefile
+
+===============================================================================
+-rw-r----- 1 cs9414 cs9414 50634 May 31 13:11 agent.py
+===============================================================================
+
+     1  #!/usr/bin/env python3
+     2  # agent.py
+     3  #This program is realised by evaluation and tree. First, it search all the possibility, such as, searching the mist,
+     4  #blowing up the wall, make aboat, blow up wall,blow up door. Every possible step ,it will find out.
+     5  #Second, it is to pruning the tree, for instance, record a harbour for a island, and this could reduce the possiblity of
+     6  #tree.
+     7  #Third, it is to find out wich wall need to explode,if we consider every wall, it will be exponential.
+     8  #We recorded the searched place and try to search the unknown place.
+     9  #The evaluation part is to customized the score by state. For example, if I have dynamites, it will be high score. if I
+    10  #used a dynamites wronly, it will score low.
+    11  #
+    12  #This program can be invoke by some hidden parament,  [-print] could show everystep , --w [float] could show the algorithm
+    13  #between greegy and uniform search, when the float value is one, then it is A* search
+    14  #We finished this assignment by 7 days after the assinment has released.
+    15  #Huang,Wei z5119435 ChengWen, Peng z5103407
+                           ^
+                           + ========================================= +
+                           + Good agent design and implementation  :-) +
+                           + Very nice (and speedy) work)!             +
+                           + ========================================= +
+    16  #
+    17  #
+    18  import socket
+    19  from argparse import ArgumentParser
+    20  from collections import deque
+    21  import os
+    22  import sys
+    23  import math
+    24  view=[[str('m') for i in range(5) ] for _ in range(5)]
+    25  view[2][2]='I'
+    26  imap=15
+    27  w=1
+    28  best_path=[]
+    29  temp_path=[]
+    30  used_wall=[]
+    31  used_tree=[]
+    32  used_ground_mist=[]
+    33  used_ocean_mist=[]
+    34  island_ocean_index=[]
+    35  center_x=round(imap/2)
+    36  center_y=round(imap/2)
+    37  off_x=0
+    38  off_y=0
+    39  reduce_mark=0
+    40  sys.setrecursionlimit(2147483640)
+    41  parser = ArgumentParser()
+    42  parser.add_argument('-p', type=int,dest = 'port', required = True)
+    43  parser.add_argument('--imap', type=int,dest = 'imap', required = False)
+    44  parser.add_argument('--w', type=float,dest = 'w', required = False)
+    45  parser.add_argument('-print', dest = 'print', action='store_true',required = False)
+    46  args = parser.parse_args()
+    47  port = args.port
+    48  if(args.imap):
+    49      imap=args.imap
+    50  if(args.w):
+    51      w=args.w
+    52  #port=12344
+    53  sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    54  sock.connect(('localhost',port))
+    55  irow=round(imap/2)-1
+    56  icol=round(imap/2)
+    57  row=round(imap/2)
+    58  col=round(imap/2)
+    59  east = 2
+    60  north = 1
+    61  west = 0
+    62  south = 3
+    63  dirn = 1
+    64  map=[['m' for _ in range(imap+1)] for _ in range(imap+1)]
+    65  map[round(imap/2)][round(imap/2)]=' '
+    66  have_axe = 0
+    67  have_key = 0
+    68  have_raft = 0
+    69  game_won = False
+    70  game_lost = False
+    71  have_treasure = 0
+    72  num_dynamites_held = 0
+    73  simulate_mark=0
+    74  def action(a):
+    75      if(a):
+    76          #print('take action:',a)
+    77          sock.send(bytes(a,encoding='utf-8'))
+    78  def print_view():
+    79      global view
+    80      for i in view:
+    81          print(i)
+    82  def manhattan_dist(x, y, dx, dy):
+    83      return abs(x - dx) + abs(y - dy)
+    84  def read_view():
+    85      global view
+    86      for i in range(5):
+    87          for j in range(5):
+    88              if ((i == 2) and (j == 2)):
+    89                  continue
+    90              k = str(sock.recv(1), encoding='utf-8')
+    91              view[i][j]=k
+    92  def draw_map():
+    93      global map
+    94      global view
+    95      global row
+    96      global col
+    97      temp=[[str(i) for i in range(5) ] for _ in range(5)]
+    98      for i in range(5):
+    99          for j in range(5):
+   100              if(dirn==0):
+   101                 temp[4 - j][ i] = view[i][j]
+   102              if (dirn == 1):
+   103                temp[i][j] = view[i][j]
+   104              if (dirn == 2):
+   105                  temp[j][4 - i] = view[i][j]
+   106              if (dirn == 3):
+   107                 temp[4 - i][4 - j] = view[i][j]
+   108      for i in range(-2,3):
+   109          for j in range(-2,3):
+   110              if(i!=0 or j!=0):
+   111                  map[row + i][col + j] = temp[2+i][2+j]
+   112  def forward_step():
+   113      global irow
+   114      global icol
+   115      if(dirn==0):
+   116          irow = row;
+   117          icol = col - 1;
+   118      if (dirn == 1):
+   119          irow = row - 1;
+   120          icol = col;
+   121      if (dirn == 2):
+   122          irow = row;
+   123          icol = col + 1;
+   124      if (dirn == 3):
+   125          irow = row + 1;
+   126          icol = col;
+   127  def judge_move(x,y,dx,dy,action=None):
+   128      dd=0
+   129      global dirn
+   130      op = [['', 'R', 'RR', 'L'],
+   131            ['L', '', 'R', 'RR'],
+   132            ['RR', 'L', '', 'R'],
+   133            ['R', 'RR', 'L', '']]
+   134      if(x==dx and y==dy ):
+   135          return ''
+   136      if(x-1==dx and y==dy):#1
+   137          dd=1
+   138      if(x+1==dx and y==dy):#3
+   139          dd=3
+   140      if(x==dx and y+1==dy):#2
+   141          dd=2
+   142      if(x==dx and y-1==dy):#0
+   143          dd=0
+   144      if(action in {'C','U','B'}):
+   145          return op[dirn][dd]+action+'F'
+   146      return op[dirn][dd]+'F'
+   147  def change_dirn(a):
+   148      global dirn
+   149      if(a=='L'):
+   150          dirn = (dirn-1)%4
+   151      if(a=='R'):
+   152         dirn = (dirn+1)%4
+   153  ################################################################################
+   154  def find_all_continents(x,y):
+   155      options = find_ocean_options(x,y)
+   156      temp_all_continents =[]
+   157      all_continents=[]
+   158      def looking_for_land(x,y):
+   159          nonlocal temp_all_continents
+   160          nonlocal all_continents
+   161          new_land=[]
+   162          temp=[]
+   163          for i in range(len(temp_all_continents)):
+   164              for j in range(len(temp_all_continents[i])):
+   165                  if(temp_all_continents[i][j]==[x,y]):
+   166                      all_continents[i].append([[x,y],' '])
+   167                      return
+   168          new_land = find_ground_options(x,y)
+   169          for n in new_land:
+   170              temp.append(n[0])
+   171          temp_all_continents.append(temp)
+   172          all_continents.append([[[x,y],' ']])
+   173      for opt in options:
+   174          for o in opt[1:]:
+   175              if(o[2]==' '):
+   176                  looking_for_land(o[0],o[1])
+   177      return all_continents
+   178  def find_all_oceans(x,y):
+   179      options = find_ground_options(x,y)
+   180      temp_all_ocean = []
+   181      all_oceans=[]
+   182      def looking_for_ocean(gx,gy,x, y):
+   183          nonlocal all_oceans
+   184          nonlocal temp_all_ocean
+   185          new_ocean = []
+   186          temp = []
+   187          for i in range(len(temp_all_ocean)):
+   188              for j in range(len(temp_all_ocean[i])):
+   189                  if (temp_all_ocean[i][j] == [x, y]):
+   190                      all_oceans[i].append([[gx,gy],[x, y],'~'])
+   191                      return
+   192          new_ocean = find_ocean_options(x, y)
+   193          for n in new_ocean:
+   194              temp.append(n[0])
+   195          temp_all_ocean.append(temp)
+   196          all_oceans.append([[[gx,gy],[x, y],'~']])
+   197      for opt in options:
+   198          for o in opt[1:]:
+   199              if (o[2] == '~'):
+   200                  looking_for_ocean(opt[0][0],opt[0][1],o[0], o[1])
+   201      return all_oceans
+   202  ################################################################################
+   203  def ground_neighbor(x,y):
+   204      neighbor=[[x,y]]
+   205      if (map[x - 1][y] not in {' ','.'}):
+   206          neighbor.append([x - 1,y,map[x - 1][y]])
+   207      if (map[x][y + 1] not in {' ','.'}):
+   208          neighbor.append([x, y+1, map[x][y+1]])
+   209      if (map[x + 1][y] not in {' ','.'}):
+   210          neighbor.append([x+1, y, map[x+1][y]])
+   211      if (map[x][y - 1] not in {' ','.'}):
+   212          neighbor.append([x, y-1, map[x][y-1]])
+   213      for i in range(-2,3):
+   214          for j in range(-2,3):
+   215              if (map[x + i][y +j] == 'm' and [x + i, y + j, map[x + i][y + j]] not in neighbor) and (i!=0 or j!=0):
+   216                  neighbor.append([x + i, y + j, map[x + i][y + j]])
+   217      if len(neighbor)>1:
+   218          return neighbor
+   219      else:
+   220          return []
+   221  def find_ground_options(x,y):
+   222      u = deque()
+   223      temp=[]
+   224      option=[]
+   225      used=[]
+   226      global map
+   227      if(map[x][y] ==' '):
+   228          u.append([x,y])
+   229      else :
+   230          return []
+   231      while(u):
+   232          [x, y]=u.popleft()
+   233          temp=ground_neighbor(x,y)
+   234          if (temp):
+   235              option.append(temp)
+   236          if([x,y]==[center_x,center_y] and [x,y] not in used  and [x,y] not in u):
+   237              option.append([[x,y]])
+   238          used.append([x, y])
+   239          if (map[x-1][y] == ' ' and [x-1,y] not in used and [x-1,y] not in u):
+   240              u.append([x-1, y])
+   241          if (map[x][y+1] == ' ' and [x,y+1] not in used and [x,y+1] not in u):
+   242              u.append([x, y+1])
+   243          if (map[x+1][y] == ' ' and [x+1,y] not in used and [x+1,y] not in u):
+   244              u.append([x+1, y])
+   245          if (map[x][y-1] == ' ' and [x,y-1] not in used and [x,y-1] not in u):
+   246              u.append([x, y-1])
+   247      return option
+   248  def ocean_neighbor(x,y):
+   249      neighbor=[[x,y]]
+   250      if (map[x - 1][y] not in {'~','.'}):
+   251          neighbor.append([x - 1, y, map[x - 1][y]])
+   252      if (map[x][y + 1] not in {'~','.'}):
+   253          neighbor.append([x, y + 1, map[x][y + 1]])
+   254      if (map[x + 1][y] not in {'~','.'}):
+   255          neighbor.append([x + 1, y, map[x + 1][y]])
+   256      if (map[x][y - 1] not in {'~','.'}):
+   257          neighbor.append([x, y - 1, map[x][y - 1]])
+   258      for i in range(-2,3):
+   259          for j in range(-2,3):
+   260              if (map[x + i][y +j] == 'm' and [x + i, y + j, map[x + i][y + j]] not in neighbor)and (i!=0 or j!=0):
+   261                  neighbor.append([x + i, y + j, map[x + i][y + j]])
+   262      if len(neighbor)>1:
+   263          return neighbor
+   264      else:
+   265          return []
+   266  def find_ocean_options(x,y):
+   267      u = deque()
+   268      option=[]
+   269      temp=[]
+   270      used=[]
+   271      global map
+   272      if(map[x][y] =='~'):
+   273          u.append([x,y])
+   274      else :
+   275          return []
+   276      while(u):
+   277          [x, y]=u.popleft()
+   278          temp=ocean_neighbor(x,y)
+   279          if (temp ):
+   280              option.append(temp)
+   281          used.append([x,y])
+   282          if (map[x-1][y] =='~' and [x-1,y] not in used and [x-1,y] not in u):
+   283              u.append([x-1,y])
+   284          if (map[x][y+1] =='~' and [x,y+1] not in used and [x,y+1] not in u):
+   285              u.append([x,y+1])
+   286          if (map[x+1][y] =='~' and [x+1,y] not in used and [x+1,y] not in u):
+   287              u.append([x+1, y])
+   288          if (map[x][y-1] =='~' and [x,y-1] not in used and [x,y-1] not in u):
+   289              u.append([x, y-1])
+   290      return option
+   291  def find_path(x,y,dx,dy):
+   292      used_path = []
+   293      path1 = []
+   294      global map
+   295      temp1=''
+   296      temp2=''
+   297      if (map[x][y] in {'d', 'k', 'a', '$'}):
+   298          temp1 = map[x][y]
+   299          map[x][y] = ' '
+   300      if (map[dx][dy] in {'d', 'k', 'a', '$'}):
+   301          temp2 = map[dx][dy]
+   302          map[dx][dy] = ' '
+   303      current_state = map[x][y]
+   304      if (current_state != map[dx][dy] and current_state in {' ','~'} and map[dx][dy] in {' ','~'} and
+   305              ((dx - 1 == x and dy == y) or (dx + 1 == x and dy == y) or (dx == x and dy - 1 == y)
+   306               or (dx == x and dy + 1 == y))):
+   307          return [[x, y], [dx, dy]]
+   308      def recursive_path(cx,cy):
+   309          nonlocal path1
+   310          nonlocal used_path
+   311          nonlocal current_state
+   312          nonlocal x
+   313          nonlocal y
+   314          nonlocal dx
+   315          nonlocal dy
+   316          global w
+   317          path1.append([cx,cy])
+   318          used_path.append([cx,cy])
+   319          if([cx-1,cy]==[dx,dy]):
+   320              path1.append([cx-1, cy])
+   321              return True
+   322          if([cx,cy+1]==[dx,dy]):
+   323              path1.append([cx,cy+1])
+   324              return True
+   325          if([cx+1,cy]==[dx,dy]):
+   326              path1.append([cx+1,cy])
+   327              return True
+   328          if([cx,cy-1]==[dx,dy]):
+   329              path1.append([cx,cy-1])
+   330              return True
+   331          for _ in range(4):
+   332              a_star = []
+   333              temp = []
+   334              if(map[cx-1][cy] == current_state and [cx-1,cy] not in used_path):
+   335                  a_star.append([cx-1,cy,w*manhattan_dist(x,y,cx-1,cy)+(2-w)*manhattan_dist(dx,dy,cx-1,cy)])
+   336              if(map[cx][cy+1] == current_state and [cx,cy+1] not in used_path):
+   337                  a_star.append([cx,cy+1,w*manhattan_dist(x,y,cx,cy+1)+(2-w)*manhattan_dist(dx,dy,cx,cy+1)])
+   338              if(map[cx+1][cy] == current_state and [cx+1,cy] not in used_path):
+   339                  a_star.append([cx+1,cy,w*manhattan_dist(x,y,cx+1,cy)+(2-w)*manhattan_dist(dx,dy,cx+1,cy)])
+   340              if(map[cx][cy-1] == current_state and [cx,cy-1] not in used_path):
+   341                  a_star.append([cx,cy-1,w*manhattan_dist(x,y,cx,cy-1)+(2-w)*manhattan_dist(dx,dy,cx,cy-1)])
+   342              if(a_star):
+   343                  temp=min(a_star,key=lambda x:x[2])
+   344              if(temp):
+   345                  if( recursive_path(temp[0],temp[1])):
+   346                      return True
+   347                  else:
+   348                      path1.pop()
+   349          return False
+   350      if(recursive_path(x,y)):
+   351          if (temp1):
+   352              map[x][y]=temp1
+   353          if (temp2):
+   354              map[dx][dy]=temp2
+   355          return path1
+   356      else:
+   357          if (temp1):
+   358              map[x][y]=temp1
+   359          if (temp2):
+   360              map[dx][dy]=temp2
+   361          return []
+   362  def ground_evaluate(x,y):
+   363      option=[]
+   364      global used1
+   365      global num_dynamites_held#mark=100
+   366      global have_raft#mark=20
+   367      global have_axe#mark=5
+   368      global have_key#mark=10
+   369      global have_treasure  # mark=99999
+   370      global game_won
+   371      global reduce_mark
+   372      mist=[]
+   373      mark=0
+   374      explored_mist=[]
+   375      dynamites=[]
+   376      tree=[]
+   377      key=False
+   378      axe=False
+   379      treasure=[]
+   380      temp_raft=0
+   381      if(map[x][y]==' '):
+   382          option=find_ground_options(x,y)
+   383          for o in option:
+   384              for op in o[1:]:
+   385                  if (op[2]=='m' and [op[0],op[1]] not in mist):
+   386                      mist.append([op[0],op[1]])
+   387                  if (op[2] == 'd' and [op[0], op[1]] not in dynamites):
+   388                      dynamites.append([op[0], op[1]])
+   389                  if (op[2] == 'T' and [op[0], op[1]] not in tree):
+   390                      tree.append([op[0], op[1]])
+   391                  if (op[2] == '$' and [op[0], op[1]] not in treasure):
+   392                      treasure.append([op[0], op[1]])
+   393                  if (op[2] == 'X' and [op[0], op[1]] not in explored_mist):
+   394                      explored_mist.append([op[0], op[1]])
+   395                  if (op[2] == 'k'):
+   396                      key=True
+   397                  if(op[2]=='a' ):
+   398                      axe=True
+   399          #if([[center_x,center_y]] in option and have_treasure ):
+   400          #    mark=99999
+   401          #    return mark
+   402          mark=len(dynamites)*100+num_dynamites_held*200+((axe or have_axe) and len(tree)>=1)*20\
+   403               +axe*5+ bool(have_axe)*20+bool(have_raft)*4+bool(have_key)*20\
+   404               +key*10+len(explored_mist)*3+len(mist)*2+reduce_mark
+   405      return mark
+   406  def ocean_evaluate(x,y):
+   407      global used1
+   408      global num_dynamites_held#mark=100
+   409      global have_raft#mark=20
+   410      global have_axe#mark=5
+   411      global have_key#mark=10
+   412      global reduce_mark
+   413      used1=[]
+   414      explored_mist=[]
+   415      mist=[]
+   416      mark = 0
+   417      if(map[x][y]=='~'):
+   418          option = find_ocean_options(x,y)
+   419          for o in option:
+   420              for op in o[1:]:
+   421                  if (op[2] == 'm' and [op[0],op[1]] not in mist):
+   422                      mist.append([op[0],op[1]])
+   423                  if (op[2] == 'X' and [op[0], op[1]] not in explored_mist):
+   424                      explored_mist.append([op[0], op[1]])
+   425          mark = len(mist) + len(explored_mist) * 1.2 + num_dynamites_held * 200 +bool(have_axe) * 20 \
+   426                 + bool(have_raft) * 4 + len(mist)*2 + len(explored_mist) * 3 + bool(have_key) * 20 +reduce_mark
+   427      return mark
+   428  def is_value_tree(x,y):
+   429      global map
+   430      for i in range(-2,3):
+   431          for j in range(-2, 3):
+   432              if(map[x+i][y+j] in {'d', 'k', 'a', '$','m'}):
+   433                  return True
+   434      return False
+   435  def is_value(x1,y1):
+   436      used_wall1 = []
+   437      def is_v(x,y,x0,y0,depth=num_dynamites_held):
+   438          global num_dynamites_held
+   439          global map
+   440          nonlocal used_wall1
+   441          used_wall1.append([x, y])
+   442          if (map[x][y] in {'d', 'k', 'a', '$','m'}):
+   443              return True
+   444          if(depth<1):
+   445              return False
+   446          if(manhattan_dist(x,y,x0,y0)>4):
+   447              return False
+   448          for i in {-1,1}:
+   449              if ([x + i,y] not in used_wall1 and map[x + i][y] not in {'.','~'}):
+   450                  if(map[x + i][y]=='*' and num_dynamites_held>1):
+   451                      num_dynamites_held-=1
+   452                      if(is_v(x + i,y,x0,y0)):
+   453                          num_dynamites_held+=1
+   454                          return True
+   455                      num_dynamites_held += 1
+   456                  elif(map[x + i][y]!='*' and is_v(x + i, y,x0,y0)):
+   457                          return True
+   458              if ([x,y + i] not in used_wall1 and map[x][y + i] not in {'.','~'}):
+   459                  if(map[x][y + i]=='*' and num_dynamites_held>1):
+   460                      num_dynamites_held-=1
+   461                      if(is_v(x, y + i,x0,y0)):
+   462                          num_dynamites_held+=1
+   463                          return True
+   464                      num_dynamites_held += 1
+   465                  elif(map[x][y + i]!='*' and is_v(x, y + i,x0,y0)):
+   466                          return True
+   467          used_wall1.pop()
+   468          return False
+   469      return is_v(x1,y1,x1,y1)
+   470  def init_value():
+   471      global simulate_mark
+   472      global best_path
+   473      global used_wall
+   474      global used_tree
+   475      global used_ground_mist
+   476      global used_ocean_mist
+   477      simulate_mark=0
+   478      best_path = []
+   479      used_wall = []
+   480      used_tree = []
+   481      used_ground_mist=[]
+   482      used_ocean_mist=[]
+   483  def clear_mist(x,y):
+   484      global map
+   485      temp=[]
+   486      for i in range(-2, 3):
+   487          for j in range(-2, 3):
+   488              if (map[x + i][y + j] == 'm'):
+   489                  temp.append([x + i,y + j])
+   490                  map[x + i][y + j] = 'X'
+   491      return temp
+   492  def recover_mist(mist):
+   493      global map
+   494      for temp in mist:
+   495          if (map[temp[0]][temp[1]] == 'X'):
+   496              map[temp[0]][temp[1]]='m'
+   497  def simulate(x,y):
+   498      global temp_path
+   499      global best_path
+   500      global used_tree
+   501      global used_wall
+   502      global used_ground_mist
+   503      global used_ocean_mist
+   504      global simulate_mark
+   505      global have_axe
+   506      global have_key
+   507      global have_raft
+   508      global game_won
+   509      global have_treasure
+   510      global num_dynamites_held
+   511      global island_ocean_index
+   512      global reduce_mark
+   513      option=[]
+   514      if(map[x][y] == ' '):
+   515          g_option=find_ground_options(x,y)
+   516      if (map[x][y] == '~'):
+   517          o_option=find_ocean_options(x,y)
+   518      if( best_path == []):# do nothing ,just waiting for death
+   519          simulate_mark=-99999
+   520      if (game_won):
+   521          return
+   522      if (map[x][y] == ' '):  # find the treasure and go home
+   523          if(have_treasure and [[center_x,center_y]] in g_option):
+   524              temp1=[[center_x,center_y],' ']
+   525              ##print('[center_x,center_y]:',[[center_x,center_y],' '])
+   526              temp_path.append(temp1)
+   527              #print('game_won:',game_won)
+   528              game_won = True
+   529              temp_mark = 99999
+   530              if (temp_mark>simulate_mark or(temp_mark==simulate_mark and len(temp_path)<len(best_path))):
+   531                  best_path = [i for i in temp_path]
+   532                  simulate_mark=temp_mark
+   533                  temp_path.pop()
+   534                  return
+   535              temp_path.pop()
+   536      if (map[x][y] == ' '):  # explore ground mist
+   537          temp1 = []
+   538          for opt in g_option:
+   539              for o in opt[1:]:
+   540                  if(o[2] == 'm' and map[opt[0][0]][opt[0][1]]==' ' and opt[0] not in used_ground_mist):
+   541                      if((temp1 and manhattan_dist(x,y,temp1[0],temp1[1])>manhattan_dist(x,y,opt[0][0],opt[0][1]))
+   542                         or not temp1):
+   543                          temp1=opt[0]
+   544          if(temp1):
+   545              used_ground_mist.append(temp1)
+   546              mist=clear_mist(temp1[0],temp1[1])
+   547              temp_path.append([temp1,'m'])
+   548              temp_mark = ground_evaluate(temp1[0],temp1[1])
+   549              if(temp_mark > simulate_mark or (temp_mark == simulate_mark and len(temp_path)<len(best_path))):
+   550                  best_path=[i for i in temp_path]
+   551                  simulate_mark=temp_mark
+   552              simulate(temp1[0],temp1[1])
+   553              temp_path.pop()
+   554              recover_mist(mist)
+   555      if (map[x][y] == ' '):  # open ground door
+   556          if(have_key):
+   557              temp1 = []
+   558              temp2 = []
+   559              for opt in g_option:
+   560                  for o in opt[1:]:
+   561                      if(o[2] == '-'):
+   562                          if((temp1 and manhattan_dist(x,y,temp1[0],temp1[1])>manhattan_dist(x,y,opt[0][0],opt[0][1]))
+   563                             or not temp1):
+   564                              temp1=opt[0]
+   565                              temp2=[o[0],o[1]]
+   566              if(temp1 and temp2 ):
+   567                  mist1=clear_mist(temp1[0], temp1[1])
+   568                  mist2=clear_mist(temp2[0], temp2[1])
+   569                  if(map[temp2[0]][temp2[1]]=='-'):
+   570                      map[temp2[0]][temp2[1]] = ' '
+   571                      temp_path.append([temp1,temp2,'U'])
+   572                  temp_mark = ground_evaluate(x,y)
+   573                  if(temp_mark > simulate_mark or (temp_mark == simulate_mark and len(temp_path)<len(best_path))):
+   574                      best_path=[i for i in temp_path]
+   575                      simulate_mark = temp_mark
+   576                  simulate(temp2[0],temp2[1])
+   577                  temp_path.pop()
+   578                  map[temp2[0]][temp2[1]]='-'
+   579                  recover_mist(mist1)
+   580                  recover_mist(mist2)
+   581      if(map[x][y]==' '):#pick treasure
+   582          temp1 = []
+   583          temp2 = []
+   584          for opt in g_option:
+   585              for o in opt[1:]:
+   586                  if(o[2] in {'d','k','a','$'}):
+   587                      if((temp2 and manhattan_dist(x,y,temp2[0],temp2[1])>manhattan_dist(x,y,opt[0][0],opt[0][1]))or not temp2):
+   588                          temp2=o
+   589          if(temp2):
+   590              mist=clear_mist(temp2[0], temp2[1])
+   591              if(map[temp2[0]][temp2[1]]=='d'):
+   592                  num_dynamites_held+=1
+   593                  map[temp2[0]][temp2[1]] = ' '
+   594                  temp_path.append([temp2,'d'])
+   595              if(map[temp2[0]][temp2[1]]=='k'):
+   596                  have_key+=1
+   597                  map[temp2[0]][temp2[1]] = ' '
+   598                  temp_path.append([temp2,'k'])
+   599              if(map[temp2[0]][temp2[1]]=='a'):
+   600                  have_axe+=1
+   601                  map[temp2[0]][temp2[1]] = ' '
+   602                  temp_path.append([temp2,'a'])
+   603              if(map[temp2[0]][temp2[1]]=='$'):
+   604                  have_treasure+=1
+   605                  map[temp2[0]][temp2[1]] = ' '
+   606                  temp_path.append([temp2,'$'])
+   607              temp_mark = ground_evaluate(temp2[0],temp2[1])
+   608              if(temp_mark > simulate_mark or (temp_mark == simulate_mark and len(temp_path)<len(best_path))):
+   609                  best_path=[i for i in temp_path]
+   610                  simulate_mark=temp_mark
+   611              simulate(temp2[0],temp2[1])
+   612              temp_path.pop()
+   613              map[temp2[0]][temp2[1]]=temp2[2]
+   614              if(map[temp2[0]][temp2[1]]=='d'):
+   615                  num_dynamites_held-=1
+   616              if(map[temp2[0]][temp2[1]]=='k'):
+   617                  have_key-=1
+   618              if(map[temp2[0]][temp2[1]]=='a'):
+   619                  have_axe-=1
+   620              if(map[temp2[0]][temp2[1]]=='$'):
+   621                  have_treasure-=1
+   622              recover_mist(mist)
+   623      if (map[x][y] == ' '):  # cut a tree to find a road
+   624          temp1 = []
+   625          temp2 = []
+   626          if(have_axe and have_raft):
+   627              for opt in g_option:
+   628                  for o in opt[1:]:
+   629                      if (is_value_tree(o[0],o[1]) and [o[0], o[1]] not in used_tree and o[2] == 'T'):
+   630                          temp1 = opt[0]
+   631                          temp2 = [o[0], o[1]]
+   632                          break
+   633              if(temp1):
+   634                  used_tree.append([temp2[0],temp2[1]])
+   635                  mist1=clear_mist(temp1[0], temp1[1])
+   636                  mist2=clear_mist(temp2[0], temp2[1])
+   637                  map[temp2[0]][temp2[1]] = ' '
+   638                  temp_path.append([temp1,temp2,'C'])
+   639                  have_raft += 1
+   640                  temp_mark = ground_evaluate(temp2[0],temp2[1])
+   641                  if(temp_mark > simulate_mark or (temp_mark == simulate_mark and len(temp_path)<len(best_path))):
+   642                      best_path=[i for i in temp_path]
+   643                      simulate_mark=temp_mark
+   644                  simulate(temp2[0],temp2[1])
+   645                  have_raft -= 1
+   646                  temp_path.pop()
+   647                  map[temp2[0]][temp2[1]]='T'
+   648                  recover_mist(mist1)
+   649                  recover_mist(mist2)
+   650      if (map[x][y] == ' '):  # prepare for sailing
+   651          if(have_raft):
+   652              temp2 = []
+   653              search_ocean = []
+   654              sc=[]
+   655              for opt in g_option:
+   656                  for o in opt[1:]:
+   657                      if (o[2] =='~' and [opt[0],[o[0],o[1]],'~'] in island_ocean_index
+   658                          and [opt[0],[o[0],o[1]],'~'] not in search_ocean):
+   659                          search_ocean.append([opt[0],[o[0],o[1]],'~'])
+   660              if( not search_ocean):
+   661                  for i in find_all_oceans(x,y):
+   662                      search_ocean.append(i[0])
+   663                      if(i[0] not in island_ocean_index):
+   664                          island_ocean_index.append(i[0])
+   665              for sc in search_ocean:
+   666                  if (sc not in temp_path):
+   667                      temp2 = sc
+   668                  else:
+   669                      continue
+   670                  # print('search_continent:', search_continent)
+   671                  mist1 = clear_mist(temp2[0][0], temp2[0][1])
+   672                  mist2 = clear_mist(temp2[1][0], temp2[1][1])
+   673                  temp_path.append(temp2)
+   674                  reduce_mark -=500# be cautious while sailing
+   675                  temp_mark = ocean_evaluate(temp2[1][0], temp2[1][1])
+   676                  if (temp_mark > simulate_mark or (temp_mark == simulate_mark and len(temp_path)<len(best_path))):
+   677                      best_path = [i for i in temp_path]
+   678                      simulate_mark = temp_mark
+   679                  simulate(temp2[1][0], temp2[1][1])
+   680                  reduce_mark += 500
+   681                  temp_path.pop()
+   682                  recover_mist(mist2)
+   683                  recover_mist(mist1)
+   684      if (map[x][y] == '~'):#sailing, looking for ocean mist
+   685          temp1 = []
+   686          for opt in o_option:
+   687              for o in opt[1:]:
+   688                  if(o[2] == 'm' and map[opt[0][0]][opt[0][1]]=='~' and opt[0] not in used_ocean_mist):
+   689                      if((temp1 and manhattan_dist(x,y,temp1[0],temp1[1])>manhattan_dist(x,y,opt[0][0],opt[0][1]))
+   690                         or not temp1):
+   691                          temp1=opt[0]
+   692          if(temp1 ):
+   693              used_ocean_mist.append(temp1)
+   694              mist=clear_mist(temp1[0], temp1[1])
+   695              temp_path.append([temp1,'m'])
+   696              temp_mark = ocean_evaluate(x,y)
+   697              if(temp_mark > simulate_mark or (temp_mark == simulate_mark and len(temp_path)<len(best_path))):
+   698                  best_path=[i for i in temp_path]
+   699                  simulate_mark=temp_mark
+   700              simulate(temp1[0],temp1[1])
+   701              temp_path.pop()
+   702              recover_mist(mist)
+   703      if (map[x][y] == '~'):  # open ocean door
+   704          if(have_key):
+   705              temp1 = []
+   706              temp2 = []
+   707              for opt in o_option:
+   708                  for o in opt[1:]:
+   709                      if(o[2] == '-'):
+   710                          if((temp1 and manhattan_dist(x,y,temp1[0],temp1[1])>manhattan_dist(x,y,opt[0][0],opt[0][1]))or not temp1):
+   711                              temp1=opt[0]
+   712                              temp2=[o[0],o[1]]
+   713              if (temp1 and temp2):
+   714                  mist1=clear_mist(temp1[0], temp1[1])
+   715                  mist2=clear_mist(temp2[0], temp2[1])
+   716                  if(map[temp2[0]][temp2[1]]=='-'):
+   717                      map[temp2[0]][temp2[1]] = ' '
+   718                      temp_path.append([temp1,temp2,'U'])
+   719                  temp_mark = ground_evaluate(x,y)
+   720                  if(temp_mark > simulate_mark or (temp_mark == simulate_mark and len(temp_path)<len(best_path))):
+   721                      best_path=[i for i in temp_path]
+   722                      simulate_mark = temp_mark
+   723                  simulate(temp2[0],temp2[1])
+   724                  temp_path.pop()
+   725                  map[temp2[0]][temp2[1]]='-'
+   726                  recover_mist(mist1)
+   727                  recover_mist(mist2)
+   728      if (map[x][y] == '~'):  # find a new continent
+   729          temp1 = []
+   730          temp2 = []
+   731          search_continent=[]
+   732          for opt in o_option:
+   733              for o in opt[1:]:
+   734                  if (o[2] == ' ' and [[o[0], o[1]], ' '] in island_ocean_index
+   735                      and [[o[0], o[1]], ' '] not in search_continent):
+   736                      search_continent.append([[o[0], o[1]],  ' '])
+   737          if (not search_continent):
+   738              for i in find_all_continents(x,y):
+   739                  search_continent.append(i[0])
+   740                  if (i[0] not in island_ocean_index):
+   741                      island_ocean_index.append(i[0])
+   742          for sc in search_continent:
+   743              if (sc not in temp_path):
+   744                  temp2=sc
+   745              else:
+   746                  continue
+   747              if (temp2 ):
+   748                  #print('search_continent:', search_continent)
+   749                  mist2 = clear_mist(temp2[0][0], temp2[0][1])
+   750                  temp_path.append(temp2)
+   751                  reduce_mark -=1000#be cautious while landing
+   752                  temp_mark = ground_evaluate(temp2[0][0],temp2[0][1])
+   753                  u_wall=used_wall
+   754                  used_wall=[]
+   755                  if (temp_mark > simulate_mark or (temp_mark == simulate_mark and len(temp_path)<len(best_path))):
+   756                      best_path = [i for i in temp_path]
+   757                      simulate_mark = temp_mark
+   758                  temp = have_raft
+   759                  have_raft = 0
+   760                  simulate(temp2[0][0], temp2[0][1])
+   761                  reduce_mark+=1000
+   762                  used_wall = u_wall
+   763                  have_raft = temp
+   764                  temp_path.pop()
+   765                  recover_mist(mist2)
+   766          for opt in o_option:
+   767              for o in opt[1:]:
+   768                  temp1 = opt[0]
+   769                  temp2 = [o[0], o[1]]
+   770                  if (temp1 and temp2 ):
+   771                      same_continent = False
+   772                      if(o[2] == 'd' ):
+   773                          mist1 = clear_mist(temp1[0], temp1[1])
+   774                          mist2 = clear_mist(temp2[0], temp2[1])
+   775                          temp_path.append([temp2,'d'])
+   776                          map[temp2[0]][temp2[1]]=' '
+   777                          num_dynamites_held +=1
+   778                          temp_mark = ground_evaluate(temp2[0],temp2[1])-1000#be cautious while landing
+   779                          u_wall=used_wall
+   780                          u_tree=used_tree
+   781                          used_wall=[]
+   782                          used_tree=[]
+   783                          if(temp_mark > simulate_mark or (temp_mark == simulate_mark and len(temp_path)<len(best_path))):
+   784                              best_path=[i for i in temp_path]
+   785                              simulate_mark=temp_mark
+   786                          used_wall = u_wall
+   787                          used_tree = u_tree
+   788                          temp=have_raft
+   789                          have_raft = 0
+   790                          simulate(temp2[0],temp2[1])
+   791                          num_dynamites_held -= 1
+   792                          have_raft = temp
+   793                          temp_path.pop()
+   794                          map[temp2[0]][temp2[1]] = 'd'
+   795                          recover_mist(mist1)
+   796                          recover_mist(mist2)
+   797                      if(o[2] == 'k' ):
+   798                          mist1 = clear_mist(temp1[0], temp1[1])
+   799                          mist2 = clear_mist(temp2[0], temp2[1])
+   800                          temp_path.append([temp2,'k'])
+   801                          map[temp2[0]][temp2[1]]=' '
+   802                          have_key +=1
+   803                          temp_mark = ground_evaluate(temp2[0],temp2[1])-1000#be cautious while landing
+   804                          u_wall=used_wall
+   805                          u_tree=used_tree
+   806                          used_wall=[]
+   807                          used_tree=[]
+   808                          if(temp_mark > simulate_mark or (temp_mark == simulate_mark and len(temp_path)<len(best_path))):
+   809                              best_path=[i for i in temp_path]
+   810                              simulate_mark=temp_mark
+   811                          used_wall = u_wall
+   812                          used_tree = u_tree
+   813                          temp=have_raft
+   814                          have_raft = 0
+   815                          simulate(temp2[0],temp2[1])
+   816                          have_key -= 1
+   817                          have_raft = temp
+   818                          temp_path.pop()
+   819                          map[temp2[0]][temp2[1]] = 'k'
+   820                          recover_mist(mist1)
+   821                          recover_mist(mist2)
+   822                      if(o[2] == 'a' ):
+   823                          mist1 = clear_mist(temp1[0], temp1[1])
+   824                          mist2 = clear_mist(temp2[0], temp2[1])
+   825                          temp_path.append([temp2,'a'])
+   826                          map[temp2[0]][temp2[1]]=' '
+   827                          have_axe +=1
+   828                          temp_mark = ground_evaluate(temp2[0],temp2[1])-1000#be cautious while landing
+   829                          u_wall=used_wall
+   830                          u_tree=used_tree
+   831                          used_wall=[]
+   832                          used_tree=[]
+   833                          if(temp_mark > simulate_mark or (temp_mark == simulate_mark and len(temp_path)<len(best_path))):
+   834                              best_path=[i for i in temp_path]
+   835                              simulate_mark=temp_mark
+   836                          used_wall = u_wall
+   837                          used_tree = u_tree
+   838                          temp=have_raft
+   839                          have_raft = 0
+   840                          simulate(temp2[0],temp2[1])
+   841                          have_axe -= 1
+   842                          have_raft = temp
+   843                          temp_path.pop()
+   844                          map[temp2[0]][temp2[1]] = 'a'
+   845                          recover_mist(mist1)
+   846                          recover_mist(mist2)
+   847                      if(o[2] == '$' ):
+   848                          mist1 = clear_mist(temp1[0], temp1[1])
+   849                          mist2 = clear_mist(temp2[0], temp2[1])
+   850                          temp_path.append([temp2,'$'])
+   851                          map[temp2[0]][temp2[1]]=' '
+   852                          have_treasure +=1
+   853                          temp_mark = ground_evaluate(temp2[0],temp2[1])-1000#be cautious while landing
+   854                          u_wall=used_wall
+   855                          u_tree=used_tree
+   856                          used_wall=[]
+   857                          used_tree=[]
+   858                          if(temp_mark > simulate_mark or (temp_mark == simulate_mark and len(temp_path)<len(best_path))):
+   859                              best_path=[i for i in temp_path]
+   860                              simulate_mark=temp_mark
+   861                          used_wall = u_wall
+   862                          used_tree = u_tree
+   863                          temp=have_raft
+   864                          have_raft = 0
+   865                          simulate(temp2[0],temp2[1])
+   866                          have_treasure -= 1
+   867                          have_raft = temp
+   868                          temp_path.pop()
+   869                          map[temp2[0]][temp2[1]] = '$'
+   870                          recover_mist(mist1)
+   871                          recover_mist(mist2)
+   872      if (map[x][y] == ' '):  # blow up wall
+   873          if(num_dynamites_held):
+   874              temp1 = []
+   875              temp2 = []
+   876              for opt in g_option:
+   877                  for o in opt[1:]:
+   878                      if (o[2] == '*' and is_value(o[0],o[1]) and [o[0], o[1]] not in used_wall):
+   879                          used_wall.append([o[0], o[1]])
+   880                          temp1 = opt[0]
+   881                          temp2 = [o[0], o[1]]
+   882                          if(temp1 and temp2 ):
+   883                              mist2=clear_mist(temp2[0], temp2[1])
+   884                              map[temp2[0]][temp2[1]]=' '
+   885                              num_dynamites_held -= 1
+   886                              temp_path.append([temp1,temp2,'B'])
+   887                              temp_mark = ground_evaluate(temp2[0],temp2[1])
+   888                              #print('temp_path:', temp_path)
+   889                              #print('temp_mark:', temp_mark)
+   890                              if(temp_mark > simulate_mark or (temp_mark == simulate_mark and len(temp_path)<len(best_path))):
+   891                                  best_path=[i for i in temp_path]
+   892                                  simulate_mark = temp_mark
+   893                              simulate(temp2[0],temp2[1])
+   894                              num_dynamites_held +=1
+   895                              temp_path.pop()
+   896                              map[temp2[0]][temp2[1]] = '*'
+   897                              recover_mist(mist2)
+   898      if (map[x][y] == ' '):  # blow up door
+   899          if(not have_key and num_dynamites_held):
+   900              temp1 = []
+   901              temp2 = []
+   902              for opt in g_option:
+   903                  for o in opt[1:]:
+   904                      if (o[2] == '-' and is_value(o[0],o[1])):
+   905                          temp1 = opt[0]
+   906                          temp2 = [o[0], o[1]]
+   907                          if(temp1 and temp2 ):
+   908                              mist1=clear_mist(temp1[0], temp1[1])
+   909                              mist2=clear_mist(temp2[0], temp2[1])
+   910                              map[temp2[0]][temp2[1]]=' '
+   911                              num_dynamites_held -= 1
+   912                              temp_path.append([temp1,temp2,'B'])
+   913                              temp_mark = ground_evaluate(temp2[0],temp2[1])
+   914                              if(temp_mark > simulate_mark or (temp_mark == simulate_mark and len(temp_path)<len(best_path))):
+   915                                  best_path=[i for i in temp_path]
+   916                                  simulate_mark = temp_mark
+   917                              simulate(temp2[0],temp2[1])
+   918                              num_dynamites_held +=1
+   919                              temp_path.pop()
+   920                              map[temp2[0]][temp2[1]] = '-'
+   921                              recover_mist(mist1)
+   922                              recover_mist(mist2)
+   923      if (map[x][y] == ' '):  # blow up tree
+   924          if(not have_axe and num_dynamites_held):
+   925              temp1 = []
+   926              temp2 = []
+   927              for opt in g_option:
+   928                  for o in opt[1:]:
+   929                      if (o[2] == 'T' and is_value_tree(o[0],o[1]) and [o[0], o[1]] not in used_tree):
+   930                          used_tree.append([o[0], o[1]])
+   931                          temp1 = opt[0]
+   932                          temp2 = [o[0], o[1]]
+   933                          if(temp1 and temp2 ):
+   934                              mist1=clear_mist(temp1[0], temp1[1])
+   935                              mist2=clear_mist(temp2[0], temp2[1])
+   936                              map[temp2[0]][temp2[1]]=' '
+   937                              num_dynamites_held -= 1
+   938                              temp_path.append([temp1,temp2,'B'])
+   939                              temp_mark = ground_evaluate(temp2[0],temp2[1])
+   940                              if(temp_mark > simulate_mark or (temp_mark == simulate_mark and len(temp_path)<len(best_path))):
+   941                                  best_path=[i for i in temp_path]
+   942                                  simulate_mark = temp_mark
+   943                              simulate(temp2[0],temp2[1])
+   944                              num_dynamites_held +=1
+   945                              temp_path.pop()
+   946                              map[temp2[0]][temp2[1]] = 'T'
+   947                              recover_mist(mist1)
+   948                              recover_mist(mist2)
+   949      if (map[x][y] == ' '):  # make a boat
+   950          temp1 = []
+   951          temp2 = []
+   952          if(have_axe and not have_raft):
+   953              for opt in g_option:
+   954                  for o in opt[1:]:
+   955                      if ([o[0], o[1]] not in used_tree and o[2] == 'T' and
+   956                              ((temp1 and manhattan_dist(x,y,temp1[0],temp1[1])>manhattan_dist(x,y,opt[0][0],opt[0][1]))
+   957                               or not temp1)):
+   958                          temp1 = opt[0]
+   959                          temp2 = [o[0], o[1]]
+   960              if(temp1):
+   961                  used_tree.append([temp2[0],temp2[1]])
+   962                  mist1=clear_mist(temp1[0], temp1[1])
+   963                  mist2=clear_mist(temp2[0], temp2[1])
+   964                  map[temp2[0]][temp2[1]] = ' '
+   965                  temp_path.append([temp1,temp2,'C'])
+   966                  have_raft += 1
+   967                  temp_mark = ground_evaluate(temp2[0],temp2[1])
+   968                  if(temp_mark > simulate_mark or (temp_mark == simulate_mark and len(temp_path)<len(best_path))):
+   969                      best_path=[i for i in temp_path]
+   970                      simulate_mark=temp_mark
+   971                  simulate(temp2[0],temp2[1])
+   972                  have_raft -= 1
+   973                  temp_path.pop()
+   974                  map[temp2[0]][temp2[1]]='T'
+   975                  recover_mist(mist1)
+   976                  recover_mist(mist2)
+   977      #print('*************best_path:', best_path, 'simulate_mark:', simulate_mark)
+   978      #print('temp_path:', temp_path, 'simulate_mark:', simulate_mark)
+   979  def print_map():
+   980      os.system('clear')
+   981      for i in range(len(map)):
+   982          for j in range(len(map[0])):
+   983              if(i==row and j==col):
+   984                  print('I', end='')
+   985              else:
+   986                  print(map[i][j],end='')
+   987          print()
+   988  def move(x,y,dx,dy,act=''):
+   989      global row
+   990      global col
+   991      global have_axe
+   992      global have_key
+   993      global have_raft
+   994      global have_treasure
+   995      global num_dynamites_held
+   996      global center_x
+   997      global center_y
+   998      global map
+   999      global off_x
+  1000      global off_y
+  1001      action_str=''
+  1002      if (act == 'C'):
+  1003          have_raft += 1
+  1004      if (act == 'B'):
+  1005          num_dynamites_held -= 1
+  1006      #print(x,y,dx,dy,':',act)
+  1007      if( act):
+  1008          temp = find_path(row, col, x, y)
+  1009          #print('find_path:',find_path(row, col, x, y))
+  1010      else:
+  1011          #print('map[row][col],map[dx][dy]:',map[row][col],map[dx][dy])
+  1012          if (map[row][col] == '~' and map[dx][dy] in {' ','d','$','a','k','-','T','*'} ):
+  1013              have_raft = 0
+  1014          temp = find_path(row,col, dx, dy)
+  1015          #print('find_path:',find_path(row, col, dx, dy))
+  1016      for p in temp:
+  1017          action_str=judge_move(row,col,p[0]+off_x,p[1]+off_y)
+  1018          if(not action_str):
+  1019              continue
+  1020          #print('action_str:',action_str)
+  1021  #        print([row,col])
+  1022          for a_s in action_str:
+  1023              if(a_s == 'F'):
+  1024                  if (row + 6 >= len(map)):
+  1025                      temp_map = [['m' for _ in range(len(map[0]))] for _ in range(len(map) + 2)]
+  1026                      for i in range(len(map)):
+  1027                          for j in range(len(map[0])):
+  1028                              temp_map[i][j] = map[i][j]
+  1029                      map = [[i for i in temp_map[j]] for j in range(len(temp_map))]
+  1030                  elif (row - 6 < 0):
+  1031                      temp_map = [['m' for _ in range(len(map[0]))] for _ in range(len(map) + 2)]
+  1032                      for i in range(len(map)):
+  1033                          for j in range(len(map[0])):
+  1034                              temp_map[i + 2][j] = map[i][j]
+  1035                      map = [[i for i in temp_map[j]] for j in range(len(temp_map))]
+  1036                      center_x += 2
+  1037                      off_x += 2
+  1038                  elif (col + 6 >= len(map[0])):
+  1039                      temp_map = [['m' for _ in range(len(map[0]) + 2)] for _ in range(len(map))]
+  1040                      for i in range(len(map)):
+  1041                          for j in range(len(map[0])):
+  1042                              temp_map[i][j] = map[i][j]
+  1043                      map = [[i for i in temp_map[j]] for j in range(len(temp_map))]
+  1044                  elif (col - 6 < 0):
+  1045                      temp_map = [['m' for _ in range(len(map[0]) + 2)] for _ in range(len(map))]
+  1046                      for i in range(len(map)):
+  1047                          for j in range(len(map[0])):
+  1048                              temp_map[i][j + 2] = map[i][j]
+  1049                      map = [[i for i in temp_map[j]] for j in range(len(temp_map))]
+  1050                      center_y += 2
+  1051                      off_y += 2
+  1052                  [row, col] = [p[0]+off_x, p[1]+off_y]
+  1053                  #print('off_x,off_y:',off_x,off_y)
+  1054              action(a_s)
+  1055              change_dirn(a_s)
+  1056              read_view()
+  1057              draw_map()
+  1058              forward_step()
+  1059              #print_view()#################
+  1060              if(args.print):
+  1061                  print_map()###################
+  1062      [x, y] = [x + off_x, y + off_y]
+  1063      [dx, dy] = [dx + off_x, dy + off_y]
+  1064      if bool(act):
+  1065          #print('row,col,dx,dy,act:',row,col,dx,dy,act)
+  1066          action_str=judge_move(row,col,dx,dy,action=act)
+  1067          #print('action_str:', action_str)
+  1068          for a_s in action_str:
+  1069              #print('current_direction:',dirn)
+  1070              if(a_s == 'F'):
+  1071                  if (row + 6 > len(map)):
+  1072                      temp_map = [['m' for _ in range(len(map[0]))] for _ in range(len(map) + 2)]
+  1073                      for i in range(len(map)):
+  1074                          for j in range(len(map[0])):
+  1075                              temp_map[i][j] = map[i][j]
+  1076                      map = [[i for i in temp_map[j]] for j in range(len(temp_map))]
+  1077                  elif (row - 6 < 0):
+  1078                      temp_map = [['m' for _ in range(len(map[0]))] for _ in range(len(map) + 2)]
+  1079                      for i in range(len(map)):
+  1080                          for j in range(len(map[0])):
+  1081                              temp_map[i + 2][j] = map[i][j]
+  1082                      map = [[i for i in temp_map[j]] for j in range(len(temp_map))]
+  1083                      center_x += 2
+  1084                      off_x += 2
+  1085                      row+=1
+  1086                  elif (col + 6 > len(map[0])):
+  1087                      temp_map = [['m' for _ in range(len(map[0]) + 2)] for _ in range(len(map))]
+  1088                      for i in range(len(map)):
+  1089                          for j in range(len(map[0])):
+  1090                              temp_map[i][j] = map[i][j]
+  1091                      map = [[i for i in temp_map[j]] for j in range(len(temp_map))]
+  1092                  elif (col - 6 < 0):
+  1093                      temp_map = [['m' for _ in range(len(map[0]) + 2)] for _ in range(len(map))]
+  1094                      for i in range(len(map)):
+  1095                          for j in range(len(map[0])):
+  1096                              temp_map[i][j + 2] = map[i][j]
+  1097                      map = [[i for i in temp_map[j]] for j in range(len(temp_map))]
+  1098                      center_y += 2
+  1099                      off_y += 2
+  1100                      col+=1
+  1101                  else:
+  1102                      [row,col]=[dx,dy]
+  1103              action(a_s)
+  1104              change_dirn(a_s)
+  1105              read_view()
+  1106              draw_map()
+  1107              forward_step()
+  1108              #print_view()###############
+  1109              #print_map()#############
+  1110      #print('find path~:',temp)
+  1111      if(map[row][col]=='d'):
+  1112          map[row][col]=' '
+  1113          num_dynamites_held += 1
+  1114      if(map[row][col]=='k'):
+  1115          map[row][col]=' '
+  1116          have_key += 1
+  1117      if(map[row][col]=='a'):
+  1118          map[row][col]=' '
+  1119          have_axe += 1
+  1120      if(map[row][col]=='$'):
+  1121          map[row][col]=' '
+  1122          have_treasure += 1
+  1123      #print('have boat:',have_raft)
+  1124      return
+  1125  main_option=[]
+  1126  main_path=[]
+  1127  main_temp1=[]
+  1128  g_think = False
+  1129  o_think = False
+  1130  read_view()
+  1131  draw_map()
+  1132  try:
+  1133      while(not game_won):
+  1134          #print('direction: ',dirn)
+  1135          #print_view()
+  1136          #print_map()
+  1137          #print('boat##############################',have_raft)
+  1138          #print('num_dynamites_held:',num_dynamites_held)
+  1139          main_temp1=[]
+  1140          main_temp2=[]
+  1141          off_x = 0
+  1142          off_y = 0
+  1143          #print('current location:',map[row][col])
+  1144          if (map[row][col] ==' '):
+  1145              main_option=find_ground_options(row,col)
+  1146              #print('options:',main_option)
+  1147              #print(main_option)
+  1148              #print('current_location:'[row,col])
+  1149              for opt in main_option:
+  1150                  for o in opt[1:]:
+  1151                      if (o[2] == 'm'):
+  1152                          if ((main_temp1 and manhattan_dist(row, col, main_temp1[0], main_temp1[1])
+  1153                              > manhattan_dist(row, col, opt[0][0], opt[0][1])) or not main_temp1):
+  1154                              main_temp1 = opt[0]
+  1155                              g_think=True
+  1156                              break
+  1157                  if(main_temp1):
+  1158                      break
+  1159              if(main_temp1):
+  1160                  move(row,col,main_temp1[0],main_temp1[1])
+  1161                  continue
+  1162              elif(g_think):
+  1163                  g_think=False
+  1164                  for i in find_all_oceans(row, col):
+  1165                      if (i[0] not in island_ocean_index):
+  1166                          island_ocean_index.append(i[0])
+  1167              if(have_axe):
+  1168                  main_temp1 = []
+  1169                  main_temp2 = []
+  1170                  for opt in main_option:
+  1171                      for o in opt[1:]:
+  1172                          if (o[2] == 'T' and is_value_tree(o[0],o[1])):
+  1173                              if ((main_temp1 and manhattan_dist(row, col, main_temp1[0], main_temp1[1])
+  1174                                  > manhattan_dist(row, col, opt[0][0], opt[0][1])) or not main_temp1):
+  1175                                  main_temp1 = opt[0]
+  1176                                  main_temp2 = [o[0],o[1]]
+  1177                                  break
+  1178                      if (main_temp1):
+  1179                          break
+  1180                  if(main_temp1):
+  1181                      move(main_temp1[0], main_temp1[1], main_temp2[0], main_temp2[1],act='C')
+  1182                      have_raft=1
+  1183                      continue
+  1184              for opt in main_option:
+  1185                  for o in opt[1:]:
+  1186                      if (o[2] in { 'd','a','$','k' }):
+  1187                          if ((main_temp1 and manhattan_dist(row, col, main_temp1[0], main_temp1[1])
+  1188                              > manhattan_dist(row, col, opt[0][0], opt[0][1])) or not main_temp1):
+  1189                              main_temp1 = [o[0],o[1]]
+  1190                              break
+  1191              if (main_temp1):
+  1192                  move(row, col,main_temp1[0], main_temp1[1])
+  1193                  continue
+  1194          if (map[row][col] == '~'):
+  1195              main_option=find_ocean_options(row,col)
+  1196              for opt in main_option:
+  1197                  for o in opt[1:]:
+  1198                      if (o[2] == 'm'):
+  1199                          if ((main_temp1 and manhattan_dist(row, col, main_temp1[0], main_temp1[1])
+  1200                              > manhattan_dist(row, col, opt[0][0], opt[0][1])) or not main_temp1):
+  1201                              main_temp1 = opt[0]
+  1202                              o_think=True
+  1203                              break
+  1204              if(main_temp1):
+  1205                  move(row,col,main_temp1[0],main_temp1[1])
+  1206                  continue
+  1207              elif(o_think):
+  1208                  o_think=False
+  1209                  for i in find_all_continents(row, col):
+  1210                      if (i[0] not in island_ocean_index):
+  1211                          island_ocean_index.append(i[0])
+  1212          if (not main_temp1):
+  1213              #print('have_axe:',str(have_axe))
+  1214              #print(find_ground_options(row,col))
+  1215              init_value()
+  1216              temp_off_x=0
+  1217              temp_off_y=0
+  1218              simulate(row,col)
+  1219              #print('best_path:', best_path, 'simulate_mark:', simulate_mark)
+  1220              for i in range(len(best_path)):
+  1221                  off_x=0
+  1222                  off_y=0
+  1223                  path=best_path[i]
+  1224                  if(path[-1] not in {'U','B','C'}):
+  1225                      #print('path[' + str(i) + ']:', path[0], path[1])
+  1226                      move(row,col,path[0][0]+temp_off_x,path[0][1]+temp_off_y)
+  1227                      temp_off_x += off_x
+  1228                      temp_off_y += off_y
+  1229                      if(path[-1]=='~'):
+  1230                          move(row, col, path[1][0]+temp_off_x, path[1][1]+temp_off_y)
+  1231                          temp_off_x += off_x
+  1232                          temp_off_y += off_y
+  1233                      if(path[0]==[center_x,center_y]):
+  1234                          sock.close()
+  1235                  if(path[-1] in {'U','B','C'}):
+  1236                      #print('path[0][0], path[0][1],path[1][0],path[1][1],a=path[2]:',path[0][0], path[0][1], path[1][0], path[1][1],path[-1])
+  1237                      move(path[0][0]+temp_off_x, path[0][1]+temp_off_y, path[1][0]+temp_off_x, path[1][1]+temp_off_y,act=path[-1])
+  1238                      temp_off_x += off_x
+  1239                      temp_off_y += off_y
+  1240          #print('main_best_path:', best_path)
+  1241  except ConnectionResetError:
+  1242      os.system('clear')
+  1243      sys.exit()
+
+
+===============================================================================
+-rw-r----- 1 cs9414 cs9414 256 May 31 13:11 Makefile
+===============================================================================
+
+     1
+     2  CC = gcc
+     3  CFLAGS = -Wall -03
+     4  CSRC = agent.c pipe.c
+     5  HSRC = pipe.h
+     6  OBJ = $(CSRC:.c=.o)
+     7  %o:%c $(HSRC)
+     8          $(CC) $(CFLAGS) -c $<
+     9  .PHONY: clean
+    10  all:
+    11          cp agent.py agent
+    12          chmod 755 agent
+    13  agent: $(OBJ)
+    14          $(CC) -lm $(CFLAGS) -o agent $(OBJ)
+    15  clean:
+    16          rm *.o *.class agent
+cp agent.py agent
+chmod 755 agent
+Submission compiled.
+
+----------
+!!section tests
+** Test 1: t0.in
+--------------------------------
+** Test passed
+--------------------------------
+** Test 2: s1.in
+--------------------------------
+** Test passed
+--------------------------------
+** Test 3: t1.in
+--------------------------------
+** Test passed
+--------------------------------
+** Test 4: s2.in
+--------------------------------
+** Test passed
+--------------------------------
+** Test 5: t2.in
+--------------------------------
+** Test passed
+--------------------------------
+** Test 6: s3.in
+--------------------------------
+** Test passed
+--------------------------------
+** Test 7: t3.in
+--------------------------------
+** Test passed
+--------------------------------
+** Test 8: s4.in
+--------------------------------
+** Test passed
+--------------------------------
+** Test 9: t4.in
+--------------------------------
+** Test passed
+--------------------------------
+** Test 10: s5.in
+--------------------------------
+** Test passed
+--------------------------------
+** Test 11: t5.in
+--------------------------------
+** Test passed
+--------------------------------
+** Test 12: s6.in
+--------------------------------
+** Test passed
+--------------------------------
+** Test 13: s0.in
+--------------------------------
+** Test passed
+--------------------------------
+** Test 14: t6.in
+--------------------------------
+** Test failed (run-time error). Output difference:-
+                                                              | Game Won.
+..........~~~~...................                             <
+~~......~~~~...***...............                             <
+...   ~~~~~~. ***** ....... T ...                             <
+..  k  ~~~~~.***$***...... T.T ..                             <
+...   ~~~~~~. *****T......... ~..                             <
+.............~ *** ~.............                             <
+~~...............................                             <
+.....  ................... *** ..                             <
+.....*  ..........~~~.~~. *****T.                             <
+...*.>* ...........~~.~~.**ddd**.                             <
+....**  ......~....~~.~~. ***** .                             <
+....   ~...................***...                             <
+.................................                             <
+                                                              <
+Lost connection to port: 21714                                <
+CPU time limit exceeded (core dumped)
+"/tmp/COMP9414.1624.run/./agent": not in executable format: File format not recognized
+BFD: Warning: /tmp/COMP9414.1624.run/core is truncated: expected core file size >= 5840896, found: 4190208.
+** Stack trace from gdb:
+"/tmp/COMP9414.1624.run/./agent": not in executable format: File format not recognized
+BFD: Warning: /tmp/COMP9414.1624.run/core is truncated: expected core file size >= 5840896, found: 4190208.
+[New LWP 2426]
+Core was generated by `python3 ./agent -p 21714'.
+Program terminated with signal SIGXCPU, CPU time limit exceeded.
+#0  0xf708dbde in ?? ()
+--------------------------------
+** Test 15: s7.in
+--------------------------------
+** Test passed
+--------------------------------
+** Test 16: t7.in
+--------------------------------
+** Test passed
+--------------------------------
+** Test 17: s8.in
+--------------------------------
+** Test passed
+--------------------------------
+** Test 18: t8.in
+--------------------------------
+** Test failed (run-time error). Output difference:-
+                                                              | Game Won.
+..........................                                    <
+..****....................                                    <
+.******.~.................                                    <
+.**$***.~.~~~~~~~~~~......                                    <
+.***T**.~.................                                    <
+.*-****...v........***....                                    <
+...****~~~**.*.*...T**....                                    <
+~.~~~~~~~~*..-.*...*k*....                                    <
+~.~~~~~~~~******...***....                                    <
+~.~~~~~~~~................                                    <
+..........................                                    <
+..*********************.*.                                    <
+........................*.                                    <
+.************************.                                    <
+..........................                                    <
+                                                              <
+Lost connection to port: 21718                                <
+CPU time limit exceeded (core dumped)
+"/tmp/COMP9414.1624.run/./agent": not in executable format: File format not recognized
+BFD: Warning: /tmp/COMP9414.1624.run/core is truncated: expected core file size >= 5824512, found: 4190208.
+** Stack trace from gdb:
+"/tmp/COMP9414.1624.run/./agent": not in executable format: File format not recognized
+BFD: Warning: /tmp/COMP9414.1624.run/core is truncated: expected core file size >= 5824512, found: 4190208.
+[New LWP 2879]
+Core was generated by `python3 ./agent -p 21718'.
+Program terminated with signal SIGXCPU, CPU time limit exceeded.
+#0  0xf7183821 in ?? ()
+--------------------------------
+** Test 19: s9.in
+--------------------------------
+** Test passed
+--------------------------------
+** Test 20: t9.in
+--------------------------------
+** Test passed
+--------------------------------
+!!section assess
+
+!!perftab       ** PERFORMANCE ANALYSIS **
+
+Test  1 (0.6)   t0.in ..  !!PASSed
+Test  2 (0.6)   s1.in ..  !!PASSed
+Test  3 (0.6)   t1.in ..  !!PASSed
+Test  4 (0.6)   s2.in ..  !!PASSed
+Test  5 (0.6)   t2.in ..  !!PASSed
+Test  6 (0.6)   s3.in ..  !!PASSed
+Test  7 (0.6)   t3.in ..  !!PASSed
+Test  8 (0.6)   s4.in ..  !!PASSed
+Test  9 (0.6)   t4.in ..  !!PASSed
+Test 10 (0.6)   s5.in ..  !!PASSed
+Test 11 (0.6)   t5.in ..  !!PASSed
+Test 12 (0.6)   s6.in ..  !!PASSed
+Test 13 (0.6)   s0.in ..  !!PASSed
+Test 14 (0.6)   t6.in ..  !!FAILed (-0.6)
+Test 15 (0.6)   s7.in ..  !!PASSed
+Test 16 (0.6)   t7.in ..  !!PASSed
+Test 17 (0.6)   s8.in ..  !!PASSed
+Test 18 (0.6)   t8.in ..  !!FAILed (-0.6)
+Test 19 (0.6)   s9.in ..  !!PASSed
+Test 20 (0.6)   t9.in ..  !!PASSed
+
+!!perfmark      ** TOTAL PERFORMANCE MARK:    11/12     <== mark altered (original mark was 10.8)
+
+!!marktab       **  MARKER'S  ASSESSMENT  **
+                  ^
+                  + ================================================== +
+                  + Excellent Work!                                    +
+                  + No submission solved more environments than yours. +
+                  + ================================================== +
+
+  Algorithms, Style, Comments & Question  (6)   6
+
+!!finalmark     **  FINAL  ASSIGNMENT  MARK:    17/18
+
+Huang, Wei                              320
+Peng, Chengwen                          320
+
+
+Marked by blair on Mon Jun  5 20:33:14 2017
+
+
